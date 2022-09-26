@@ -1,4 +1,5 @@
 ﻿using ebayBuzApi.Models;
+using ebayBuzApi.Models.Expenses;
 using ebayBuzApi.Models.FormModels;
 using ebayBuzApi.Models.Sales;
 using System;
@@ -26,6 +27,10 @@ namespace ebayBuzApi.DB
         public List<MonthlySales> GetMonthlyProfit();
         public bool AddSalesRecord(SalesForm sale);
         public bool AddQuickSalesRecord(SalesForm sale);
+
+        // Business Controller
+        public List<ExpenseTotals> GetAllExpensesTotals();
+        public bool AddExpense(BusinessExpenses expense);
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ebayBuzApi.Helpers;
 using ebayBuzApi.Models;
+using ebayBuzApi.Models.Expenses;
 using ebayBuzApi.Models.DBContext;
 using ebayBuzApi.Models.FormModels;
 using ebayBuzApi.Models.Sales;
@@ -262,6 +263,27 @@ namespace ebayBuzApi.DB
         {
             DateTime date = new DateTime(2020, month, 1);
             return date.ToString("MMM");
+        }
+
+        // Business Controller
+
+        public List<ExpenseTotals> GetAllExpensesTotals()
+        {
+            if (db.BusinessExpenses == null)
+                return null;
+            List<BusinessExpenses> allExpenseRecords = db.BusinessExpenses.Where(MySqlX => MySqlX.purchaseDate.Year == DateTime.Now.Year).ToList();
+            // TODO - calculate inventory costs current year
+            return BusinessExpenseHelper.SetExpenseTotals(allExpenseRecords);
+        }
+
+        public bool AddExpense(BusinessExpenses expense)
+        {
+            if (expense == null)
+                return false;
+
+            db.BusinessExpenses.Add(expense);
+            db.SaveChanges();
+            return true; 
         }
 
     }

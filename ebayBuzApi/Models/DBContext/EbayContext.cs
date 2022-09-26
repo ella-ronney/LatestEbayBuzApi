@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ebayBuzApi.Models.Expenses;
+using Microsoft.EntityFrameworkCore;
 
 namespace ebayBuzApi.Models.DBContext
 {
@@ -11,5 +12,6 @@ namespace ebayBuzApi.Models.DBContext
         public virtual DbSet<InventoryMappings> InventoryMappings { get; set; }
         public virtual DbSet<ArchievedSales> ArchievedSales { get; set; }
         public virtual DbSet<Fees> Fees { get; set; }
+        public virtual DbSet<BusinessExpenses> BusinessExpenses { get; set; } 
     }
 }
