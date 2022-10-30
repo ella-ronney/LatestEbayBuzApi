@@ -362,5 +362,3 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# Startup file
-C:\Users\miran\source\repos\ebayBuzApi\ebayBuzApi\Startup.cs

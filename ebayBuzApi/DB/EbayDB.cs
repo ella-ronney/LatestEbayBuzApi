@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ebayBuzApi.Models.ResolutionCenter;
 
 namespace ebayBuzApi.DB
 {
@@ -284,6 +285,32 @@ namespace ebayBuzApi.DB
             db.BusinessExpenses.Add(expense);
             db.SaveChanges();
             return true; 
+        }
+
+        // Resolution Center Controller
+        public bool AddReturn(Returns r)
+        {
+            if (r == null)
+                return false;
+
+            db.Returns.Add(r);
+            db.SaveChanges();
+            return true;
+        }
+
+        // eBay Sales Excel Reader
+        public bool AddEbaySaleRecord(eBaySaleRecord saleRecord)
+        {
+            if (saleRecord == null)
+                return false;
+            db.eBaySaleRecord.Add(saleRecord);
+            db.SaveChanges();
+            return true;
+        }
+
+        public List<eBaySaleRecord> GetAllEbaySaleRecords()
+        {
+            return db.eBaySaleRecord.ToList();
         }
 
     }

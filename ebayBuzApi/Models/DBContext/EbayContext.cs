@@ -1,4 +1,6 @@
 ﻿using ebayBuzApi.Models.Expenses;
+using ebayBuzApi.Models.ResolutionCenter;
+using ebayBuzApi.Models.Sales;
 using Microsoft.EntityFrameworkCore;
 
 namespace ebayBuzApi.Models.DBContext
@@ -13,5 +15,7 @@ namespace ebayBuzApi.Models.DBContext
         public virtual DbSet<ArchievedSales> ArchievedSales { get; set; }
         public virtual DbSet<Fees> Fees { get; set; }
         public virtual DbSet<BusinessExpenses> BusinessExpenses { get; set; } 
+        public virtual DbSet<Returns> Returns { get; set; }
+        public virtual DbSet<eBaySaleRecord> eBaySaleRecord { get; set; }
     }
 }

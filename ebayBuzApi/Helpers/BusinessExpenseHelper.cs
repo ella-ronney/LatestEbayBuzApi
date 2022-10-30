@@ -42,6 +42,9 @@ namespace ebayBuzApi.Helpers
                     case "Travel":
                         exTotals.travel += expense.cost;
                         break;
+                    case "Inventory":
+                        exTotals.inventory += expense.cost;
+                        break;
                     default:
                         Console.WriteLine("error");
                         break;

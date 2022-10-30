@@ -1,4 +1,6 @@
-﻿using ebayBuzApi.Models;
+﻿using ebayBuzApi.DB;
+using ebayBuzApi.Helpers;
+using ebayBuzApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,14 +15,14 @@ namespace ebayBuzApi.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IEbayDB ebayDBRecords)
         {
             _logger = logger;
         }
 
         public IActionResult Index()
         {
-            return View();
+            return View("Views\\Home\\Index.cshtml");
         }
 
         public IActionResult Privacy()
