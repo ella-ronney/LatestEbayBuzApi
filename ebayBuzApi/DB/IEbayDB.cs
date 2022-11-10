@@ -39,6 +39,7 @@ namespace ebayBuzApi.DB
         // eBay Sales Excel Reader
         public bool AddEbaySaleRecord(eBaySaleRecord saleRecord);
         public List<eBaySaleRecord> GetAllEbaySaleRecords();
+        public bool UpdateEbaySaleRecords(List<eBaySaleRecord> records);
 
     }
 }

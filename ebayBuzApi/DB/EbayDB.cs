@@ -313,5 +313,22 @@ namespace ebayBuzApi.DB
             return db.eBaySaleRecord.ToList();
         }
 
+        public bool UpdateEbaySaleRecords(List<eBaySaleRecord> records)
+        {
+            if (records == null)
+                return false;
+
+            foreach(eBaySaleRecord rec in records)
+            {
+                var currentRec = db.eBaySaleRecord.Where(x => x.idEbaySaleRecord == rec.idEbaySaleRecord).FirstOrDefault();
+                if (currentRec == null)
+                    return false;
+
+                db.eBaySaleRecord.Update(currentRec);
+                db.SaveChanges();
+            }
+            return true;
+        }
+
     }
 }

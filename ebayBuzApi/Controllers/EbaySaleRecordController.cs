@@ -37,5 +37,12 @@ namespace ebayBuzApi.Controllers
             return ebayDBRecords.GetAllEbaySaleRecords();
         }
 
+        [HttpPut]
+        [Route("UpdateEbaySaleRecords")]
+        public bool UpdateEbaySaleRecords(List<eBaySaleRecord> records)
+        {
+            return ebayDBRecords.UpdateEbaySaleRecords(records);
+        }
+
     }
 }
