@@ -40,6 +40,7 @@ namespace ebayBuzApi.DB
         public bool AddEbaySaleRecord(eBaySaleRecord saleRecord);
         public List<eBaySaleRecord> GetAllEbaySaleRecords();
         public bool UpdateEbaySaleRecords(List<eBaySaleRecord> records);
+        public bool AddCarRecord(CarRecords carRecord);
 
     }
 }

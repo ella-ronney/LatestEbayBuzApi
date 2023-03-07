@@ -24,7 +24,7 @@ namespace ebayBuzApi
         {
             services.AddCors((c => { c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()); }));
             services.AddTransient<IEbayDB, EbayDB>();
-            var sqlConnection = "";
+            var sqlConnection = "user id=root;Pwd=Ronney2351!;server = localhost;database=ebayBuz;allowuservariables=True;persistsecurityinfo = True;";
             services.AddDbContext<EbayContext>(options => options.UseMySQL(sqlConnection));
             services.AddControllersWithViews().AddNewtonsoftJson
                (options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore).

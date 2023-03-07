@@ -1,4 +1,6 @@
-﻿using ebayBuzApi.Models.Expenses;
+﻿using ebayBuzApi.Models;
+using ebayBuzApi.Models.Expenses;
+using ebayBuzApi.Models.FormModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,5 +55,53 @@ namespace ebayBuzApi.Helpers
             List<ExpenseTotals> exTotalsList = new List<ExpenseTotals>() { exTotals };
             return exTotalsList;
         }
+
+        public enum DropOffLocation { 
+            RedmondUSPS,
+            BellevueUSPS,
+        }
+
+        public static float GetDropOffLocationDistanceTraveled(string location, DateTime startDate, DateTime? endDate)
+        {
+            if (String.IsNullOrEmpty(location) || startDate == null)
+                return 0f;
+
+            int days = 1;
+            if (endDate != null)
+            {
+                // TODO Weekend dates don't count add logic for SatDropOff bool
+                days += (int)((DateTime)endDate - startDate).TotalDays;
+            }
+
+            location = location.Replace(" ", "");
+            DropOffLocation loc;
+            if(Enum.TryParse(location, out loc))
+            {
+                switch (loc)
+                {
+                    case DropOffLocation.RedmondUSPS:
+                        return days*3.2f;
+                    case DropOffLocation.BellevueUSPS:
+                        return days*11.6f;
+                    default:
+                        return 0.0f;
+                }
+            }
+            return 0.0f;
+        }
+
+        public static CarLogRecords MapCarRecordsToCarLogRecords(CarRecords record)
+        {
+            return new CarLogRecords
+            {
+                car = record.car,
+                destination = record.destination,
+                distanceTraveled = record.distanceTraveled,
+                endDate = record.endDate,
+                purpose = record.purpose,
+                startDate = record.startDate
+            };
+        }
+
     }
 }

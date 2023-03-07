@@ -330,5 +330,17 @@ namespace ebayBuzApi.DB
             return true;
         }
 
+        // Car Log Records
+        public bool AddCarRecord(CarRecords carRecord)
+        {
+            if (carRecord == null)
+                return false;
+            if (carRecord.purpose == "Package DropOff")
+                carRecord.distanceTraveled = BusinessExpenseHelper.GetDropOffLocationDistanceTraveled(carRecord.destination, carRecord.startDate, carRecord.endDate);
+            db.CarLogRecords.Add(BusinessExpenseHelper.MapCarRecordsToCarLogRecords(carRecord));
+            db.SaveChanges();
+            return true;
+        }
+
     }
 }
