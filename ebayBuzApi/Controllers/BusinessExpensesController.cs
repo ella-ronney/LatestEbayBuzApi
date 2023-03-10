@@ -1,5 +1,6 @@
 ﻿using ebayBuzApi.DB;
 using ebayBuzApi.Models;
+using ebayBuzApi.Models.Car;
 using ebayBuzApi.Models.Expenses;
 using ebayBuzApi.Models.FormModels;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +42,19 @@ namespace ebayBuzApi.Controllers
             return ebayDBRecords.AddCarRecord(carRecord);
         }
 
+        [HttpGet]
+        [Route("YearlyCarLogs")]
+        public ActionResult<List<YearlyCarLogs>> GetCarLogs()
+        {
+            return ebayDBRecords.GetCarLogs();
+        }
+
+        [HttpPut]
+        [Route("UpdateCarLogTotalMiles")]
+        public bool UpdateCarLogTotalMiles(List<YearlyCarLogs> log)
+        {
+            return ebayDBRecords.UpdateCarLogTotalMiles(log.First());
+        }
 
     }
 }

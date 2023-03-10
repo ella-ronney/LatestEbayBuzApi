@@ -1,4 +1,5 @@
 ﻿using ebayBuzApi.Models;
+using ebayBuzApi.Models.Car;
 using ebayBuzApi.Models.Expenses;
 using ebayBuzApi.Models.FormModels;
 using ebayBuzApi.Models.ResolutionCenter;
@@ -14,6 +15,7 @@ namespace ebayBuzApi.DB
     {
         public List<Inventory> GetAllCurrentInventory();
         public bool UpdateCurrentInventory(List<Inventory> inv);
+        public bool UpdateCurrentInventoryQty(List<Inventory> inv);
         public bool DeleteInventory(List<string> idList);
 
         public List<Inventory> GetAllIncomingInventory();
@@ -39,8 +41,10 @@ namespace ebayBuzApi.DB
         // eBay Sales Excel Reader
         public bool AddEbaySaleRecord(eBaySaleRecord saleRecord);
         public List<eBaySaleRecord> GetAllEbaySaleRecords();
-        public bool UpdateEbaySaleRecords(List<eBaySaleRecord> records);
+        public bool UpdateEbaySaleRecord(List<eBaySaleRecord> records);
         public bool AddCarRecord(CarRecords carRecord);
+        public List<YearlyCarLogs> GetCarLogs();
+        public bool UpdateCarLogTotalMiles(YearlyCarLogs log);
 
     }
 }

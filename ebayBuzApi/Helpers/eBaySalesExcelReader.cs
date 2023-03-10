@@ -15,11 +15,15 @@ namespace ebayBuzApi.Helpers
         WorkBook workbook;
         WorkSheet sheet;
         private IEbayDB ebayDBRecords;
+        private DateTime startDate;
+        private DateTime endDate;
 
-        public eBaySalesExcelReader(IEbayDB ebayDBRecords, string fileName)
+        public eBaySalesExcelReader(IEbayDB ebayDBRecords, string fileName, DateTime startDate, DateTime endDate)
         {
             workbook = WorkBook.Load("C:\\Users\\miran\\OneDrive\\Desktop\\" + fileName +".xlsx");
             sheet = workbook.WorkSheets.First();
+            this.startDate = startDate;
+            this.endDate = endDate;
             this.ebayDBRecords = ebayDBRecords;
         }
 
@@ -58,6 +62,8 @@ namespace ebayBuzApi.Helpers
                 totalSales = itemSales,
                 totalSellingCosts = totalSellingCosts,
                 avgSellingPrice = avgSellingPrice,
+                startDate = this.startDate,
+                endDate = this.endDate,
             };
 
             ebayDBRecords.AddEbaySaleRecord(record);

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ebayBuzApi.Models.ResolutionCenter;
+using ebayBuzApi.Models.Car;
 
 namespace ebayBuzApi.DB
 {
@@ -21,7 +22,7 @@ namespace ebayBuzApi.DB
             this.db = db;
         }
 
-        // Current Inventory Requests
+        #region Current Inventory
         public List<Inventory> GetAllCurrentInventory()
         {
             try
@@ -53,6 +54,19 @@ namespace ebayBuzApi.DB
                 db.Inventory.Update(currentItem);
                 db.SaveChanges();
             }
+            return true;
+        }
+
+        public bool UpdateCurrentInventoryQty(List<Inventory> inv)
+        {
+            if (inv == null || inv.Count() < 1)
+                return false;
+            var currentItem = db.Inventory.Where(x => x.idInventory == inv[0].idInventory).FirstOrDefault();
+            if (currentItem == null)
+                return false;
+            currentItem.qty = inv[0].qty;
+            db.Update(currentItem);
+            db.SaveChanges();
             return true;
         }
 
@@ -88,7 +102,9 @@ namespace ebayBuzApi.DB
             }
             return true;
         }
-        // Incoming Inventory Requests
+        #endregion
+
+        #region Incoming Inventory
         public List<Inventory> GetAllIncomingInventory()
         {
             try
@@ -116,7 +132,7 @@ namespace ebayBuzApi.DB
                 {
                     return 0;
                 }
-                return db.Inventory.Select(x => x.unitPrice * x.qty).ToList().Sum();
+                return Math.Round(db.Inventory.Select(x => x.unitPrice * x.qty).ToList().Sum(),2);
             }
             catch (Exception ex)
             {
@@ -178,13 +194,14 @@ namespace ebayBuzApi.DB
         {
             return db.InventoryMappings.Select(x=>x.invName).ToList();
         }
+        #endregion
 
-        // Sales Controller
+        #region Sales Controller - Depreciate?
 
-        public double GetTotalProfit()
+        /*public double GetTotalProfit()
         {
             return db.SaleRecords.Select(x => x.netProfit).Sum();
-        }
+        }*/
 
         public bool AddSalesRecord(SalesForm sale)
         {
@@ -237,14 +254,14 @@ namespace ebayBuzApi.DB
             return true;
         }
 
-        public List<MonthlySales> GetMonthlyProfit()
+        /*public List<MonthlySales> GetMonthlyProfit()
         {
             return db.SaleRecords.GroupBy(x => x.recordDate.Month, (key, group) => new MonthlySales
             {
                 month = getMonthName(key),
                 sum = group.Sum(y => y.netProfit)
             }).ToList();
-        }
+        }*/
 
         private void addEbayFeesToDB(SalesForm sale)
         {
@@ -265,8 +282,9 @@ namespace ebayBuzApi.DB
             DateTime date = new DateTime(2020, month, 1);
             return date.ToString("MMM");
         }
+        #endregion
 
-        // Business Controller
+        #region Business Controller
 
         public List<ExpenseTotals> GetAllExpensesTotals()
         {
@@ -286,8 +304,9 @@ namespace ebayBuzApi.DB
             db.SaveChanges();
             return true; 
         }
+        #endregion
 
-        // Resolution Center Controller
+        #region Resolution Center Controller
         public bool AddReturn(Returns r)
         {
             if (r == null)
@@ -297,12 +316,30 @@ namespace ebayBuzApi.DB
             db.SaveChanges();
             return true;
         }
+        #endregion
 
-        // eBay Sales Excel Reader
+        #region eBay Sales Excel Reader
+        public double GetTotalProfit()
+        {
+            return Math.Round(db.eBaySaleRecord.Select(x => x.totalProfit).Sum(),2);
+        }
+
+        public List<MonthlySales> GetMonthlyProfit()
+        {
+            return db.eBaySaleRecord.GroupBy(x => x.startDate.Month, (key, group) => new MonthlySales
+            {
+                month = getMonthName(key),
+                sum = Math.Round(group.Sum(y => y.totalProfit),2)
+            }).ToList();
+        }
+
         public bool AddEbaySaleRecord(eBaySaleRecord saleRecord)
         {
             if (saleRecord == null)
                 return false;
+            
+            double totalInvCosts = UpdateInventoryRecordOnSale(saleRecord.ebayItemId, saleRecord.quantitySold);
+            CalculateProfitValuesOnSale(ref saleRecord, totalInvCosts);
             db.eBaySaleRecord.Add(saleRecord);
             db.SaveChanges();
             return true;
@@ -313,34 +350,105 @@ namespace ebayBuzApi.DB
             return db.eBaySaleRecord.ToList();
         }
 
-        public bool UpdateEbaySaleRecords(List<eBaySaleRecord> records)
+        public bool UpdateEbaySaleRecord(List<eBaySaleRecord> record)
         {
-            if (records == null)
+            if (record == null || record.Count()==0)
                 return false;
 
-            foreach(eBaySaleRecord rec in records)
+            foreach(eBaySaleRecord rec in record)
             {
                 var currentRec = db.eBaySaleRecord.Where(x => x.idEbaySaleRecord == rec.idEbaySaleRecord).FirstOrDefault();
                 if (currentRec == null)
                     return false;
-
+                double additionalCosts = rec.totalSellingCosts - currentRec.totalSellingCosts;
+                currentRec.totalProfit -= additionalCosts;
+                currentRec.totalSellingCosts = rec.totalSellingCosts;
                 db.eBaySaleRecord.Update(currentRec);
                 db.SaveChanges();
             }
             return true;
         }
 
-        // Car Log Records
+        private double UpdateInventoryRecordOnSale(string eBayItemId, int qtySold)
+        {
+            List<Inventory> inv = db.Inventory.Where(x => x.ebayItemId == eBayItemId).ToList();
+            if (inv.Count() == 0)
+                return 0;
+            
+            int listIndex = 0;
+            double totalInvCosts = 0;
+            while (listIndex < inv.Count() && qtySold > 0)
+            {
+                if (inv[listIndex].qty <= qtySold)
+                {
+                    // TODO add archieved sale logic here to preserve unit cost over time
+                    db.Inventory.Remove(inv[listIndex]);
+                    totalInvCosts += inv[listIndex].qty * inv[listIndex].unitPrice;
+                    qtySold = qtySold - inv[listIndex].qty;
+                    listIndex++;
+                }
+                else
+                {
+                    inv[listIndex].qty = inv[listIndex].qty - qtySold;
+                    totalInvCosts += qtySold * inv[listIndex].unitPrice;
+                    db.Inventory.Update(inv[listIndex]);
+                    qtySold = 0;
+                }
+            }
+            db.SaveChanges();
+            return Math.Round(totalInvCosts,2);
+        }
+
+        private void CalculateProfitValuesOnSale(ref eBaySaleRecord record, double totalInvCosts)
+        {
+            record.totalSellingCosts += totalInvCosts;
+            record.totalProfit = Math.Round(record.totalSales - record.totalSellingCosts,2);
+            if(totalInvCosts != 0)
+                record.profitPercentage = Math.Round((record.totalProfit / totalInvCosts) * 100,2);
+        }
+        #endregion
+
+        #region Car Log Records
         public bool AddCarRecord(CarRecords carRecord)
         {
             if (carRecord == null)
                 return false;
             if (carRecord.purpose == "Package DropOff")
-                carRecord.distanceTraveled = BusinessExpenseHelper.GetDropOffLocationDistanceTraveled(carRecord.destination, carRecord.startDate, carRecord.endDate);
+                carRecord.distanceTraveled = BusinessExpenseHelper.GetDropOffLocationDistanceTraveled(carRecord.destination, carRecord.startDate, carRecord.endDate, carRecord.satDropOff);
+
+            AddYearlyCarLog(carRecord);
             db.CarLogRecords.Add(BusinessExpenseHelper.MapCarRecordsToCarLogRecords(carRecord));
             db.SaveChanges();
             return true;
         }
+
+        public List<YearlyCarLogs> GetCarLogs()
+        {
+            return db.YearlyCarLogs.ToList();
+        }
+
+        // TODO maybe send back the percentage so it can be updated on put call
+        public bool UpdateCarLogTotalMiles(YearlyCarLogs log)
+        {
+            if (log == null)
+                return false;
+
+            YearlyCarLogs carLog = db.YearlyCarLogs.Where(x => x.car == log.car && x.year == log.year).FirstOrDefault();
+            carLog.totalMiles = log.totalMiles;
+            carLog.businessUsagePercentage = (carLog.businessMiles / (carLog.totalMiles-carLog.totalMilesStartYear)) * 100f;
+            db.YearlyCarLogs.Update(carLog);
+            db.SaveChanges();
+            return true;
+        }
+
+        private void AddYearlyCarLog(CarRecords record)
+        {
+            YearlyCarLogs yearlyLogs =  db.YearlyCarLogs.Where(x => x.car == record.car && x.year == record.startDate.Year.ToString()).FirstOrDefault();
+            yearlyLogs.businessMiles += record.distanceTraveled;
+            db.YearlyCarLogs.Update(yearlyLogs);
+            db.SaveChanges();
+        }
+        #endregion
 
     }
 }

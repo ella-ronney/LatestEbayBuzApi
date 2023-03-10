@@ -24,9 +24,9 @@ namespace ebayBuzApi.Controllers
 
         [HttpPost]
         [Route("AddEbayExcelRecords")]
-        public bool AddEbayExcelRecods(EbayExcelFilePath filePath)
+        public bool AddEbayExcelRecods(eBayExcelFile file)
         {
-            ebayExcelReader = new eBaySalesExcelReader(ebayDBRecords, filePath.name);
+            ebayExcelReader = new eBaySalesExcelReader(ebayDBRecords, file.filePath, file.startDate, file.endDate);
             return ebayExcelReader.ReadEbayExcelWorkbook();
         }
 
@@ -38,10 +38,24 @@ namespace ebayBuzApi.Controllers
         }
 
         [HttpPut]
-        [Route("UpdateEbaySaleRecords")]
+        [Route("UpdateEbaySaleRecord")]
         public bool UpdateEbaySaleRecords(List<eBaySaleRecord> records)
         {
-            return ebayDBRecords.UpdateEbaySaleRecords(records);
+            return ebayDBRecords.UpdateEbaySaleRecord(records);
+        }
+
+        [HttpGet]
+        [Route("TotalProfit")]
+        public double TotalProfit()
+        {
+            return ebayDBRecords.GetTotalProfit();
+        }
+
+        [HttpGet]
+        [Route("MonthlyProfit")]
+        public ActionResult<List<MonthlySales>> GetMonthlyProfit()
+        {
+            return ebayDBRecords.GetMonthlyProfit();
         }
 
     }

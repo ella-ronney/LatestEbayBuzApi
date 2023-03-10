@@ -17,5 +17,8 @@ namespace ebayBuzApi.Models.Sales
         public double totalProfit { get; set; }
         public double totalSellingCosts { get; set; }
         public double avgSellingPrice { get; set; }
+        public double profitPercentage { get; set; }
+        public DateTime startDate { get; set; }
+        public DateTime endDate { get; set; }
     }
 }

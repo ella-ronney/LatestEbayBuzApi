@@ -61,7 +61,7 @@ namespace ebayBuzApi.Helpers
             BellevueUSPS,
         }
 
-        public static float GetDropOffLocationDistanceTraveled(string location, DateTime startDate, DateTime? endDate)
+        public static float GetDropOffLocationDistanceTraveled(string location, DateTime startDate, DateTime? endDate, bool satDropOff)
         {
             if (String.IsNullOrEmpty(location) || startDate == null)
                 return 0f;
@@ -69,8 +69,7 @@ namespace ebayBuzApi.Helpers
             int days = 1;
             if (endDate != null)
             {
-                // TODO Weekend dates don't count add logic for SatDropOff bool
-                days += (int)((DateTime)endDate - startDate).TotalDays;
+                days = GetDropOffDays(startDate, (DateTime)endDate, satDropOff);
             }
 
             location = location.Replace(" ", "");
@@ -101,6 +100,16 @@ namespace ebayBuzApi.Helpers
                 purpose = record.purpose,
                 startDate = record.startDate
             };
+        }
+
+        private static int GetDropOffDays(DateTime startDate, DateTime endDate, bool satDropOff)
+        {
+            int days = (int)endDate.Subtract(startDate).TotalDays;
+            if (satDropOff)
+                return Enumerable.Range(0, days + 1).Select(x => startDate.AddDays(x)).Count(x => x.DayOfWeek != DayOfWeek.Sunday);
+            else
+                return Enumerable.Range(0, days + 1).Select(x => startDate.AddDays(x)).Count(x => x.DayOfWeek != DayOfWeek.Saturday && x.DayOfWeek != DayOfWeek.Sunday);
+
         }
 
     }

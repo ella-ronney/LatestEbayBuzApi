@@ -1,4 +1,5 @@
-﻿using ebayBuzApi.Models.Expenses;
+﻿using ebayBuzApi.Models.Car;
+using ebayBuzApi.Models.Expenses;
 using ebayBuzApi.Models.ResolutionCenter;
 using ebayBuzApi.Models.Sales;
 using Microsoft.EntityFrameworkCore;
@@ -18,5 +19,6 @@ namespace ebayBuzApi.Models.DBContext
         public virtual DbSet<Returns> Returns { get; set; }
         public virtual DbSet<eBaySaleRecord> eBaySaleRecord { get; set; }
         public virtual DbSet<CarLogRecords> CarLogRecords { get; set; }
+        public virtual DbSet<YearlyCarLogs> YearlyCarLogs { get; set; }
     }
 }
