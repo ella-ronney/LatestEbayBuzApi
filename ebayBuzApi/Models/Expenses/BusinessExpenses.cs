@@ -14,6 +14,7 @@ namespace ebayBuzApi.Models.Expenses
         public string expenseCategory { get; set; }
         public float cost { get; set; }
         public string paymentInfo { get; set; }
+        public float businessPercentage { get; set; }
         public DateTime purchaseDate { get; set; }
     }
 }

@@ -15,7 +15,6 @@ namespace ebayBuzApi.DB
     {
         public List<Inventory> GetAllCurrentInventory();
         public bool UpdateCurrentInventory(List<Inventory> inv);
-        public bool UpdateCurrentInventoryQty(List<Inventory> inv);
         public bool DeleteInventory(List<string> idList);
 
         public List<Inventory> GetAllIncomingInventory();
@@ -30,6 +29,9 @@ namespace ebayBuzApi.DB
         public List<MonthlySales> GetMonthlyProfit();
         public bool AddSalesRecord(SalesForm sale);
         public bool AddQuickSalesRecord(SalesForm sale);
+        public bool AddNonWASale(NonWASale record);
+        public List<NonWASale> GetNonWASells();
+        public bool UpdateNonWASells(List<NonWASale> sales);
 
         // Business Controller
         public List<ExpenseTotals> GetAllExpensesTotals();
@@ -45,6 +47,7 @@ namespace ebayBuzApi.DB
         public bool AddCarRecord(CarRecords carRecord);
         public List<YearlyCarLogs> GetCarLogs();
         public bool UpdateCarLogTotalMiles(YearlyCarLogs log);
+        public bool GetQuarterlyReporting(QuarterReportingForm qForm);
 
     }
 }

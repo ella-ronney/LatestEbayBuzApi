@@ -32,21 +32,14 @@ namespace ebayBuzApi.Controllers
             return ebayDBRecords.UpdateCurrentInventory(inv);
         }
 
-        [HttpPut]
-        [Route("UpdateCurrentInventoryQty")]
-        public bool UpdateCurrentInventoryQty(List<Inventory> inv)
-        {
-            return ebayDBRecords.UpdateCurrentInventoryQty(inv);
-        }
-
         [HttpDelete]
         [Route("DeleteInventory")]
-        public bool DeleteInventory(List<string> idList)
+        public bool DeleteInventory(IdList IdList)
         {
-            if (ebayDBRecords.DeleteInventory(idList))
+           /* if (ebayDBRecords.DeleteInventory(Li))
             {
                 return true;
-            }
+            }*/
             return false;
         }
 

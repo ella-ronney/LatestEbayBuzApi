@@ -58,5 +58,25 @@ namespace ebayBuzApi.Controllers
             return ebayDBRecords.GetMonthlyProfit();
         }
 
+        [HttpPost]
+        [Route("AddNonWASale")]
+        public bool AddNonWaSale(NonWASale record)
+        {
+            return ebayDBRecords.AddNonWASale(record);
+        }
+
+        [HttpGet]
+        [Route("NonWASells")]
+        public List<NonWASale> GetNonWASells()
+        {
+            return ebayDBRecords.GetNonWASells();
+        }
+
+        [HttpPut]
+        [Route("UpdateNonWASells")]
+        public bool UpdateNonWASells(List<NonWASale> sales)
+        {
+            return ebayDBRecords.UpdateNonWASells(sales);
+        }
     }
 }

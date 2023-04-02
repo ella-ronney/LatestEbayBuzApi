@@ -15,37 +15,56 @@ namespace ebayBuzApi.Helpers
             ExpenseTotals exTotals = new ExpenseTotals();
             foreach(BusinessExpenses expense in expenses)
             {
+                float cost = expense.cost * (expense.businessPercentage/100.0f);
                 switch (expense.expenseCategory)
                 {
                     case "Supplies":
-                        exTotals.supplies += expense.cost;
+                        exTotals.supplies += cost;
                         break;
                     case "Subscriptions":
-                        exTotals.subscriptions += expense.cost;
+                        exTotals.subscriptions += cost;
                         break;
                     case "Office Space (Rent & Insurance)":
-                        exTotals.officeSpace += expense.cost;
+                        exTotals.officeSpace += cost;
                         break;
                     case "Utilities":
-                        exTotals.utilities += expense.cost;
+                        exTotals.officeSpace += cost;
                         break;
                     case "Food":
-                        exTotals.food += expense.cost;
+                        exTotals.food += cost;
                         break;
                     case "Gas":
-                        exTotals.gas += expense.cost;
+                        exTotals.car += cost;
                         break;
                     case "Car Expenses (Insurance & Maintance)":
-                        exTotals.car += expense.cost;
+                        exTotals.car += cost;
+                        break;
+                    case "Shipping Costs":
+                        exTotals.shippingCosts += cost;
+                        break;
+                    case "Internet":
+                        exTotals.officeSpace += cost;
+                        break;
+                    case "Computer":
+                        exTotals.officeFurniture += cost;
+                        break;
+                    case "Office Furniture":
+                        exTotals.officeFurniture += cost;
                         break;
                     case "Misc Business Expenses":
-                        exTotals.miscExpenses += expense.cost;
+                        exTotals.miscExpenses += cost;
                         break;
                     case "Travel":
-                        exTotals.travel += expense.cost;
+                        exTotals.travel += cost;
                         break;
                     case "Inventory":
-                        exTotals.inventory += expense.cost;
+                        exTotals.inventory += cost;
+                        break;
+                    case "Inventory Refunds":
+                        exTotals.inventory -= cost;
+                        break;
+                    case "Taxes":
+                        exTotals.taxes += cost;
                         break;
                     default:
                         Console.WriteLine("error");

@@ -46,5 +46,7 @@ namespace ebayBuzApi.Controllers
         {
             return ebayDBRecords.AddQuickSalesRecord(sale);
         }
+
+      
     }
 }

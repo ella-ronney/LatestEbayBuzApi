@@ -22,6 +22,8 @@ namespace ebayBuzApi.DB
             this.db = db;
         }
 
+        int currentQuarter = ((DateTime.Now.Month + 2) / 3) -1 ;
+        int currentYear = DateTime.Now.Year;
         #region Current Inventory
         public List<Inventory> GetAllCurrentInventory()
         {
@@ -45,28 +47,23 @@ namespace ebayBuzApi.DB
         {
             if (inv == null || inv.Count() < 1)
                 return false;
+
             foreach (Inventory item in inv)
             {
                 var currentItem = db.Inventory.Where(x => x.idInventory == item.idInventory).FirstOrDefault();
+                
                 if (currentItem == null)
                     return false;
-                currentItem.ebayItemId = item.ebayItemId;
+
+                if(currentItem.ebayItemId != item.ebayItemId)
+                    currentItem.ebayItemId = item.ebayItemId;
+
+                if (currentItem.qty != item.qty)
+                    currentItem.qty = item.qty;
+
                 db.Inventory.Update(currentItem);
                 db.SaveChanges();
             }
-            return true;
-        }
-
-        public bool UpdateCurrentInventoryQty(List<Inventory> inv)
-        {
-            if (inv == null || inv.Count() < 1)
-                return false;
-            var currentItem = db.Inventory.Where(x => x.idInventory == inv[0].idInventory).FirstOrDefault();
-            if (currentItem == null)
-                return false;
-            currentItem.qty = inv[0].qty;
-            db.Update(currentItem);
-            db.SaveChanges();
             return true;
         }
 
@@ -254,6 +251,40 @@ namespace ebayBuzApi.DB
             return true;
         }
 
+        public bool AddNonWASale (NonWASale record)
+        {
+            if (record == null)
+                return false;
+            if (String.IsNullOrEmpty(record.year))
+                record.year = currentYear.ToString();
+
+            db.NonWASale.Add(record);
+            db.SaveChanges();
+            return true;
+        }
+
+        public List<NonWASale> GetNonWASells()
+        {
+            return db.NonWASale.ToList();
+        }
+
+        public bool UpdateNonWASells(List<NonWASale> sales)
+        {
+            if (sales.Count == 0 || sales == null)
+                return false;
+
+            foreach (NonWASale rec in sales)
+            {
+                var currentRec = db.NonWASale.Where(x => x.idNonWASale == rec.idNonWASale).FirstOrDefault();
+                if (currentRec == null)
+                    return false;
+                currentRec.qty = rec.qty;
+                db.NonWASale.Update(currentRec);
+                db.SaveChanges();
+            }
+            return true;
+        }
+
         /*public List<MonthlySales> GetMonthlyProfit()
         {
             return db.SaleRecords.GroupBy(x => x.recordDate.Month, (key, group) => new MonthlySales
@@ -304,6 +335,29 @@ namespace ebayBuzApi.DB
             db.SaveChanges();
             return true; 
         }
+
+        public bool GetQuarterlyReporting(QuarterReportingForm qForm)
+        {
+            if (!String.IsNullOrEmpty(qForm.quarter))
+            {
+                int formQuarter = 0;
+                Int32.TryParse(qForm.quarter.Substring(1,1), out formQuarter);
+                currentQuarter = currentQuarter == formQuarter ? currentQuarter : formQuarter;
+            }
+
+            if (!String.IsNullOrEmpty(qForm.year))
+            {
+                currentYear = currentYear.ToString() == qForm.year ? currentYear : Int32.Parse(qForm.year);
+            }
+            
+            var quaterProfit = GetQuarterlyProfit();
+            var quarterExpenses = db.BusinessExpenses.Where(x => x.purchaseDate.Year == currentYear && x.expenseCategory != "Inventory" &&
+            ((x.purchaseDate.Month + 2) / 3) >= currentQuarter && ((x.purchaseDate.Month + 2) / 3) < currentQuarter + 1).Select(x=>x.cost * (x.businessPercentage/100)).Sum();
+
+            var quarterWAReporting = quaterProfit - (quarterExpenses + qForm.flSells);
+            return true;
+        }
+
         #endregion
 
         #region Resolution Center Controller
@@ -331,6 +385,14 @@ namespace ebayBuzApi.DB
                 month = getMonthName(key),
                 sum = Math.Round(group.Sum(y => y.totalProfit),2)
             }).ToList();
+        }
+
+        public double GetQuarterlyProfit()
+        {
+            
+            return db.eBaySaleRecord.Where(x => x.startDate.Year == currentYear && ((x.startDate.Month+2)/3) >= currentQuarter && ((x.startDate.Month + 2) / 3) < currentQuarter + 1)
+                .Select(x => x.totalProfit).Sum();
+            
         }
 
         public bool AddEbaySaleRecord(eBaySaleRecord saleRecord)

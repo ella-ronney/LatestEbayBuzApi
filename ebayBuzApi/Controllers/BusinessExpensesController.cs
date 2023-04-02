@@ -56,5 +56,12 @@ namespace ebayBuzApi.Controllers
             return ebayDBRecords.UpdateCarLogTotalMiles(log.First());
         }
 
+        [HttpPost]
+        [Route("GetQuarterlyReporting")]
+        public bool GetQuarterlyReporting(QuarterReportingForm qForm)
+        {
+            return ebayDBRecords.GetQuarterlyReporting(qForm);
+        }
+
     }
 }

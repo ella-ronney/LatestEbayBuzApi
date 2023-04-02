@@ -20,5 +20,7 @@ namespace ebayBuzApi.Models.DBContext
         public virtual DbSet<eBaySaleRecord> eBaySaleRecord { get; set; }
         public virtual DbSet<CarLogRecords> CarLogRecords { get; set; }
         public virtual DbSet<YearlyCarLogs> YearlyCarLogs { get; set; }
+        public virtual DbSet<QuarterlyReporting> QuarterlyReporting { get; set; }
+        public virtual DbSet<NonWASale> NonWASale { get; set; }
     }
 }
