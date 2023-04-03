@@ -7,6 +7,6 @@ namespace ebayBuzApi.Models
 {
     public class IdList
     {
-        public string ids { get; set; }
+        public string id { get; set; }
     }
 }

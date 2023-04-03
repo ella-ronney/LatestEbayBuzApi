@@ -14,8 +14,8 @@ namespace ebayBuzApi.DB
     public interface IEbayDB
     {
         public List<Inventory> GetAllCurrentInventory();
-        public bool UpdateCurrentInventory(List<Inventory> inv);
-        public bool DeleteInventory(List<string> idList);
+        public bool UpdateInventory(List<Inventory> inv);
+        public bool DeleteInventory(IdList idList);
 
         public List<Inventory> GetAllIncomingInventory();
         public double GetInventoryInvested();

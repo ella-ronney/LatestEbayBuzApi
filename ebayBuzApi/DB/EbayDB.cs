@@ -43,7 +43,7 @@ namespace ebayBuzApi.DB
             }
         }
 
-        public bool UpdateCurrentInventory(List<Inventory> inv)
+        public bool UpdateInventory(List<Inventory> inv)
         {
             if (inv == null || inv.Count() < 1)
                 return false;
@@ -61,41 +61,31 @@ namespace ebayBuzApi.DB
                 if (currentItem.qty != item.qty)
                     currentItem.qty = item.qty;
 
+                if (currentItem.currentInventory != item.currentInventory)
+                    currentItem.currentInventory = item.currentInventory;
+
                 db.Inventory.Update(currentItem);
                 db.SaveChanges();
             }
             return true;
         }
 
-        public bool DeleteInventory(List<string> idList)
+        public bool DeleteInventory(IdList idList)
         {
-            if (!DBHelper.NullCheckForIdListIds(idList))
+            if (idList == null || String.IsNullOrEmpty(idList.id))
                 return false;
             try
             {
-                foreach (string id in idList)
-                {
-                    int itemId = 0;
-                    if (DBHelper.ConvertStringToPosInt(id, ref itemId))
-                    {
-                        var item = db.Inventory.Where(x => x.idInventory == itemId).FirstOrDefault();
-                        if (item == null)
-                        {
-                            return false;
-                        }
-                        db.Inventory.Remove(item);
-                        db.SaveChanges();
-                    }
-                    else
-                    {
-                        Console.WriteLine("failed to convert the id to int");
-                        return false;
-                    }
-                }
+                int id = Int32.Parse(idList.id);
+                var item = db.Inventory.Where(x => x.idInventory == id).FirstOrDefault();
+                if (item == null)
+                    return false;
+                db.Remove(item);
+                db.SaveChanges();     
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine("Error: " + ex);
             }
             return true;
         }
