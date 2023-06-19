@@ -39,6 +39,9 @@ namespace ebayBuzApi.DB
 
         // Resolution Center Controller
         public bool AddReturn(Returns r);
+        public List<Returns> GetAllVendorReturns();
+        public List<Returns> GetAllEbayReturns();
+        public bool DeleteReturn(IdList idList);
 
         // eBay Sales Excel Reader
         public bool AddEbaySaleRecord(eBaySaleRecord saleRecord);

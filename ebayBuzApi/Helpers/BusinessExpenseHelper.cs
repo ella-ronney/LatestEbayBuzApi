@@ -16,6 +16,7 @@ namespace ebayBuzApi.Helpers
             foreach(BusinessExpenses expense in expenses)
             {
                 float cost = expense.cost * (expense.businessPercentage/100.0f);
+                exTotals.total += cost;
                 switch (expense.expenseCategory)
                 {
                     case "Supplies":

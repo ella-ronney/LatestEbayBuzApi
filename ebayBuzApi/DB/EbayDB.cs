@@ -133,7 +133,7 @@ namespace ebayBuzApi.DB
             // FIXME add a validator for all of the inv attributes - before adding to the db... do for all add statements
             if (inv != null)
             {
-                inv.unitPrice = Math.Round(inv.unitPrice / (double)inv.qty, 2);
+                inv.unitPrice = Math.Round(inv.unitPrice, 2);
                 db.Inventory.Add(inv);
                 db.SaveChanges();
                 return true;
@@ -360,6 +360,38 @@ namespace ebayBuzApi.DB
             db.SaveChanges();
             return true;
         }
+
+        public List<Returns> GetAllVendorReturns()
+        {
+            return db.Returns.Where(x => x.isVendorReturn == "Yes").ToList();
+        }
+
+        public List<Returns> GetAllEbayReturns()
+        {
+            return db.Returns.Where(x => x.isVendorReturn == "No").ToList();
+        }
+
+        public bool DeleteReturn(IdList idList)
+        {
+            if (idList == null || String.IsNullOrEmpty(idList.id))
+                return false;
+
+            try
+            {
+                int id = Int32.Parse(idList.id);
+                var item = db.Returns.Where(x => x.idReturns == id).FirstOrDefault();
+                if (item == null)
+                    return false;
+                db.Remove(item);
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex);
+            }
+            return true;
+        }
+
         #endregion
 
         #region eBay Sales Excel Reader

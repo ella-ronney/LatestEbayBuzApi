@@ -18,5 +18,6 @@ namespace ebayBuzApi.Models.Expenses
         public float miscExpenses { get; set; }
         public float shippingCosts { get; set; }
         public float taxes { get; set; }
+        public float total { get; set; }
     }
 }
