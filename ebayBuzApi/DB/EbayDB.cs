@@ -89,6 +89,198 @@ namespace ebayBuzApi.DB
             }
             return true;
         }
+
+        public bool AddSeparateComponentsRecord(SeparateItemComponentsRecord record)
+        {
+            if (record == null || record.numberComponents <= 0 || String.IsNullOrEmpty(record.itemId) ||record.unitsToSeparate <=0)
+                return false;
+            var invList = db.Inventory.Where(x => x.ebayItemId == record.itemId).ToList();
+            
+            if (invList == null || invList.Count <= 0)
+                return false;
+
+            return CreateInvRecordsForSeparateRecordComponents(invList, record);
+        }
+
+        public bool AddCombinedSaleRecord(CombinedSaleRecord record)
+        {
+            if (record == null || String.IsNullOrEmpty(record.ids) || record.qty <= 0)
+                return false;
+
+            Inventory combinedRecord = new Inventory();
+            string[] recordIds = record.ids.Split(',');
+
+            foreach(var id in recordIds)
+            {
+                int reqQty = record.qty;
+                var invList = db.Inventory.Where(x => x.ebayItemId == id).ToList();
+                var invRecord = invList[0];
+
+                combinedRecord.name += invRecord.name;
+                combinedRecord.currentInventory = "true";
+                combinedRecord.qty = record.qty;
+                combinedRecord.vendor += invRecord.vendor;
+                combinedRecord.condition += invRecord.condition;
+                combinedRecord.unitPrice = GetCombinedSaleUnitPrice(reqQty, invList, invRecord);
+
+                if (combinedRecord.unitPrice == 0)
+                    return false; 
+            }
+
+            return true;
+        }
+
+        private double GetCombinedSaleUnitPrice(int reqQty, List<Inventory> invList, Inventory invRecord)
+        {
+            List<double> unitPrices = new List<double>();
+            int listPointer = 0;
+
+            while (reqQty > 0)
+            {
+                if (listPointer > invList.Count - 1)
+                    return 0;
+
+                if (reqQty >= invRecord.qty)
+                {
+                    reqQty = reqQty - invRecord.qty;
+                    unitPrices.Add(invRecord.unitPrice);
+                    if (!DeleteInventory(new IdList { id = invRecord.idInventory.ToString() }))
+                        return 0;
+                    invRecord = invList[++listPointer];
+                }
+                else
+                {
+                    invRecord.qty = invRecord.qty - reqQty;
+                    reqQty = 0;
+                    unitPrices.Add(invRecord.unitPrice);
+                    if (!UpdateInventory(new List<Inventory> { invRecord }))
+                        return 0;
+                }
+            }
+
+            return Math.Round(unitPrices.Sum() / (double)unitPrices.Count(), 2);
+        }
+
+        private bool CreateInvRecordsForSeparateRecordComponents(List<Inventory> invList, SeparateItemComponentsRecord record)
+        {
+            int listPointer = 0;
+            var invItem = invList[listPointer];
+            // TODO make cleaner in future so dont need to create each individual object hard coded
+            for (int i = 0; i < record.unitsToSeparate; i++)
+            {
+                invItem.qty = invItem.qty - 1;
+                var invVendor = invItem.vendor;
+                var datePurchased = invItem.datePurchased;
+                var payment = invItem.payment;
+                var warranty = invItem.warranty;
+                var condition = invItem.condition;
+                var dadPurchased = invItem.dadPurchased;
+
+                if (record.numberComponents > 0)
+                {
+                    Inventory inv1 = new Inventory
+                    {
+                        name = record.nameComponent1,
+                        qty = (int)record.qtyComponent1,
+                        unitPrice = (double)Math.Round((double)record.priceComponent1 / (double)record.qtyComponent1, 2),
+                        vendor = invVendor,
+                        datePurchased = datePurchased,
+                        payment = payment,
+                        warranty = warranty,
+                        currentInventory = "true",
+                        condition = condition,
+                        dadPurchased = dadPurchased
+                    };
+                    if (!AddIncomingInventory(inv1))
+                        return false;
+                }
+                if (record.numberComponents > 1)
+                {
+                    Inventory inv2 = new Inventory
+                    {
+                        name = record.nameComponent2,
+                        qty = (int)record.qtyComponent2,
+                        unitPrice = (double)Math.Round((double)record.priceComponent2 / (double)record.qtyComponent2, 2),
+                        vendor = invVendor,
+                        datePurchased = datePurchased,
+                        payment = payment,
+                        warranty = warranty,
+                        currentInventory = "true",
+                        condition = condition,
+                        dadPurchased = dadPurchased
+                    };
+                    if (!AddIncomingInventory(inv2))
+                        return false;
+                }
+                if (record.numberComponents > 2)
+                {
+                    Inventory inv3 = new Inventory
+                    {
+                        name = record.nameComponent3,
+                        qty = (int)record.qtyComponent3,
+                        unitPrice = (double)Math.Round((double)record.priceComponent3 / (double)record.qtyComponent1, 3),
+                        vendor = invVendor,
+                        datePurchased = datePurchased,
+                        payment = payment,
+                        warranty = warranty,
+                        currentInventory = "true",
+                        condition = condition,
+                        dadPurchased = dadPurchased
+                    };
+                    if (!AddIncomingInventory(inv3))
+                        return false;
+                }
+                if (record.numberComponents > 3)
+                {
+
+                    Inventory inv4 = new Inventory
+                    {
+                        name = record.nameComponent4,
+                        qty = (int)record.qtyComponent4,
+                        unitPrice = (double)Math.Round((double)record.priceComponent4 / (double)record.qtyComponent4, 2),
+                        vendor = invVendor,
+                        datePurchased = datePurchased,
+                        payment = payment,
+                        warranty = warranty,
+                        currentInventory = "true",
+                        condition = condition,
+                        dadPurchased = dadPurchased
+                    };
+                    if (!AddIncomingInventory(inv4))
+                        return false;
+                }
+                if (record.numberComponents > 4)
+                {
+                    Inventory inv5 = new Inventory
+                    {
+                        name = record.nameComponent5,
+                        qty = (int)record.qtyComponent5,
+                        unitPrice = (double)Math.Round((double)record.priceComponent5 / (double)record.qtyComponent5, 2),
+                        vendor = invVendor,
+                        datePurchased = datePurchased,
+                        payment = payment,
+                        warranty = warranty,
+                        currentInventory = "true",
+                        condition = condition,
+                        dadPurchased = dadPurchased
+                    };
+                    if (!AddIncomingInventory(inv5))
+                        return false;
+                }
+                if (invItem.qty == 0)
+                {
+                    if (!DeleteInventory(new IdList { id = invItem.idInventory.ToString() }))
+                        return false;
+                    invItem = invList[++listPointer];
+                }
+            }
+
+            List<Inventory> inv = new List<Inventory> { invItem };
+            if (!UpdateInventory(inv))
+                return false;
+
+            return true;
+        }
         #endregion
 
         #region Incoming Inventory

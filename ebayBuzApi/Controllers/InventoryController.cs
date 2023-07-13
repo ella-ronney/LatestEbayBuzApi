@@ -91,5 +91,19 @@ namespace ebayBuzApi.Controllers
         {
             return ebayDBRecords.GetInventoryMappings();
         }
+
+        [HttpPost]
+        [Route("AddSeparateComponentsRecord")]
+        public bool AddSeperateComponentsRecord(SeparateItemComponentsRecord record)
+        {
+            return ebayDBRecords.AddSeparateComponentsRecord(record);
+        }
+
+        [HttpPost]
+        [Route("AddCombinedSaleRecord")]
+        public bool AddCombinedSaleRecord(CombinedSaleRecord record)
+        {
+            return ebayDBRecords.AddCombinedSaleRecord(record);
+        }
     }
 }

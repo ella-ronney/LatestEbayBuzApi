@@ -23,6 +23,8 @@ namespace ebayBuzApi.DB
         public bool MoveIncomingInventory(List<string> idList);
         public bool AddInventoryMapping(InventoryMappings item);
         public List<string> GetInventoryMappings();
+        public bool AddSeparateComponentsRecord(SeparateItemComponentsRecord record);
+        public bool AddCombinedSaleRecord(CombinedSaleRecord record);
 
         // Sales Controller
         public double GetTotalProfit();
