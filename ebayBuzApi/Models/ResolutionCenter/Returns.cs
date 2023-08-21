@@ -26,5 +26,7 @@ namespace ebayBuzApi.Models.ResolutionCenter
         public string? returnVendor { get; set; }
         public DateTime? returnDate { get; set; }
         public DateTime? deliveryDate { get; set; }
+        public string? account { get; set; }
+        public string? orderNumber { get; set; }
     }
 }

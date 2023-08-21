@@ -102,6 +102,8 @@ namespace ebayBuzApi.DB
             return CreateInvRecordsForSeparateRecordComponents(invList, record);
         }
 
+        //TODO needs to be tested 
+        // TODO inv not subtracted anymore was done in unit price calculations but not needed
         public bool AddCombinedSaleRecord(CombinedSaleRecord record)
         {
             if (record == null || String.IsNullOrEmpty(record.ids) || record.qty <= 0)
@@ -116,49 +118,59 @@ namespace ebayBuzApi.DB
                 var invList = db.Inventory.Where(x => x.ebayItemId == id).ToList();
                 var invRecord = invList[0];
 
-                combinedRecord.name += invRecord.name;
-                combinedRecord.currentInventory = "true";
-                combinedRecord.qty = record.qty;
-                combinedRecord.vendor += invRecord.vendor;
-                combinedRecord.condition += invRecord.condition;
-                combinedRecord.unitPrice = GetCombinedSaleUnitPrice(reqQty, invList, invRecord);
+                combinedRecord.name += invRecord.name + ",";
+                combinedRecord.vendor += invRecord.vendor + ",";
+                combinedRecord.condition += invRecord.condition + ",";
+                combinedRecord.unitPrice += invRecord.unitPrice;
+
+                //Delete Records
+                DeleteInvRecords(reqQty, invList);
 
                 if (combinedRecord.unitPrice == 0)
                     return false; 
             }
 
+            if (combinedRecord.name.Length > 254)
+                combinedRecord.name = combinedRecord.name.Substring(0, 254);
+            if(combinedRecord.condition.Length > 254)
+                combinedRecord.condition = combinedRecord.condition.Substring(0, 254);
+            if(combinedRecord.vendor.Length > 254)
+                combinedRecord.vendor = combinedRecord.vendor.Substring(0, 254);
+
+            combinedRecord.currentInventory = "true";
+            combinedRecord.qty = record.qty;
+            combinedRecord.payment = "string";
+
+            if (!AddIncomingInventory(combinedRecord))
+                return false;
+
             return true;
         }
 
-        private double GetCombinedSaleUnitPrice(int reqQty, List<Inventory> invList, Inventory invRecord)
+        // TODO Unit price calculation wrong - remove function 
+        private bool DeleteInvRecords(int reqQty, List<Inventory> invList)
         {
-            List<double> unitPrices = new List<double>();
             int listPointer = 0;
+            Inventory invRecord = invList[listPointer];
 
-            while (reqQty > 0)
+            while (listPointer < invList.Count && reqQty > 0)
             {
-                if (listPointer > invList.Count - 1)
-                    return 0;
-
-                if (reqQty >= invRecord.qty)
-                {
-                    reqQty = reqQty - invRecord.qty;
-                    unitPrices.Add(invRecord.unitPrice);
-                    if (!DeleteInventory(new IdList { id = invRecord.idInventory.ToString() }))
-                        return 0;
-                    invRecord = invList[++listPointer];
-                }
-                else
+                if (invRecord.qty > reqQty)
                 {
                     invRecord.qty = invRecord.qty - reqQty;
                     reqQty = 0;
-                    unitPrices.Add(invRecord.unitPrice);
                     if (!UpdateInventory(new List<Inventory> { invRecord }))
-                        return 0;
+                        return false;
+                }
+                else
+                {
+                    reqQty = reqQty - invRecord.qty;
+                    if (!DeleteInventory(new IdList { id = invRecord.idInventory.ToString() }))
+                        return false;
+                    invRecord = invList[++listPointer];
                 }
             }
-
-            return Math.Round(unitPrices.Sum() / (double)unitPrices.Count(), 2);
+            return true;
         }
 
         private bool CreateInvRecordsForSeparateRecordComponents(List<Inventory> invList, SeparateItemComponentsRecord record)
@@ -271,7 +283,8 @@ namespace ebayBuzApi.DB
                 {
                     if (!DeleteInventory(new IdList { id = invItem.idInventory.ToString() }))
                         return false;
-                    invItem = invList[++listPointer];
+                    // TODO better edge case handling
+                    invItem = listPointer+1 > invList.Count ? null : invList[++listPointer];
                 }
             }
 
@@ -326,6 +339,7 @@ namespace ebayBuzApi.DB
             if (inv != null)
             {
                 inv.unitPrice = Math.Round(inv.unitPrice, 2);
+                inv.dadPurchased = "false";
                 db.Inventory.Add(inv);
                 db.SaveChanges();
                 return true;
@@ -556,6 +570,27 @@ namespace ebayBuzApi.DB
         public List<Returns> GetAllVendorReturns()
         {
             return db.Returns.Where(x => x.isVendorReturn == "Yes").ToList();
+        }
+
+        public bool UpdateVendorReturn(List<Returns> returns)
+        {
+            if (returns == null || returns.Count() < 1)
+                return false;
+
+            foreach(Returns ret in returns)
+            {
+                var currentReturn = db.Returns.Where(x => x.idReturns == ret.idReturns).FirstOrDefault();
+                
+                if (currentReturn == null)
+                    return false;
+
+                if (currentReturn.returnDate != ret.returnDate)
+                    currentReturn.returnDate = ret.returnDate;
+
+                db.Returns.Update(currentReturn);
+                db.SaveChanges();
+            }
+            return true;
         }
 
         public List<Returns> GetAllEbayReturns()

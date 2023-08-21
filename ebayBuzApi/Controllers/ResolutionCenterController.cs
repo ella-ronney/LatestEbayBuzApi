@@ -33,6 +33,13 @@ namespace ebayBuzApi.Controllers
             return ebayDBRecords.GetAllVendorReturns();
         }
 
+        [HttpPut]
+        [Route("UpdateVendorReturn")]
+        public bool UpdateVendorReturn(List<Returns> returns)
+        {
+            return ebayDBRecords.UpdateVendorReturn(returns);
+        }
+
         [HttpGet]
         [Route("eBayReturns")]
         public List<Returns> GetAllEbayReturns()
